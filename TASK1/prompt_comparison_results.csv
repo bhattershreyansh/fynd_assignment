@@ -1,0 +1,4 @@
+,Accuracy,JSON Validity Rate,Valid Predictions,Consistency (Lower is Better)
+Prompt 1 (Basic),62.00%,100.00%,100/100,0.508
+Prompt 2 (Chain-of-Thought),59.00%,100.00%,100/100,0.534
+Prompt 3 (Few-Shot),63.51%,74.00%,74/100,0.512
