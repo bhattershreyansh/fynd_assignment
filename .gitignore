@@ -16,8 +16,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# lib/ (Removed generic ignore as it affects frontend src/lib)
+venv/lib/
+venv/lib64/
 parts/
 sdist/
 var/
