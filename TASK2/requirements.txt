@@ -92,4 +92,4 @@ urllib3==2.6.2
 uvicorn==0.40.0
 wcwidth==0.2.14
 webencodings==0.5.1
-websockets==15.0.
+websockets==15.0.1

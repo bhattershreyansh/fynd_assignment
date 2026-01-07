@@ -1,4 +1,4 @@
-from google import genai
+from groq import Groq
 import os
 from dotenv import load_dotenv
 import time
@@ -11,31 +11,39 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Gemini client
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY not found in environment variables")
+# Initialize Groq client
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    # Fallback to check GEMINI_API_KEY just in case, but GROQ is preferred now
+    GROQ_API_KEY = os.getenv("GEMINI_API_KEY")
+    if not GROQ_API_KEY:
+        logger.warning("GROQ_API_KEY not found in environment variables")
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 
 class AIService:
-    """Service for AI-powered review analysis"""
+    """Service for AI-powered review analysis using Groq"""
     
     def __init__(self):
-        self.model = "gemini-2.5-flash"
+        self.model = "llama-3.3-70b-versatile"
         self.max_retries = 2
     
     def _call_llm(self, prompt: str, retry_count: int = 0) -> Optional[str]:
-        """Call LLM with retry logic"""
+        """Call Groq API with retry logic"""
+        if not client:
+            logger.error("Groq client not initialized")
+            return None
+            
         try:
-            response = client.models.generate_content(
+            chat_completion = client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
                 model=self.model,
-                contents=prompt
+                temperature=0.1,
             )
-            return response.text.strip()
+            return chat_completion.choices[0].message.content.strip()
         except Exception as e:
-            logger.error(f"LLM call failed (attempt {retry_count + 1}): {str(e)}")
+            logger.error(f"Groq call failed (attempt {retry_count + 1}): {str(e)}")
             if retry_count < self.max_retries:
                 time.sleep(1)
                 return self._call_llm(prompt, retry_count + 1)
